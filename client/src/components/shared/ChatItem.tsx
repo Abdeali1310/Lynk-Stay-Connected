@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Link } from "../Styles/StyledComponents";
 import { Box, Stack, Typography } from "@mui/material";
+import AvatarCard from "./AvatarCard";
 
 interface NewMessageAlert {
   chatId: string;
@@ -14,9 +15,9 @@ interface ChatItemProps {
   groupChat?: boolean;
   sameSender: boolean;
   isOnline: boolean;
-  newMessagesAlert: NewMessageAlert; 
+  newMessagesAlert: NewMessageAlert;
   index?: number;
-  handleDeleteChatOpen: (e,_id:string,groupChat) => void;
+  handleDeleteChatOpen: (e, _id: string, groupChat) => void;
 }
 
 const ChatItem: React.FC<ChatItemProps> = ({
@@ -31,7 +32,11 @@ const ChatItem: React.FC<ChatItemProps> = ({
   handleDeleteChatOpen,
 }) => {
   return (
-    <Link to={`/chat/${_id}`} onContextMenu={(e)=>handleDeleteChatOpen(e,_id,groupChat)}>
+    <Link
+      sx={{ padding: "0" }}
+      to={`/chat/${_id}`}
+      onContextMenu={(e) => handleDeleteChatOpen(e, _id, groupChat)}
+    >
       <div
         style={{
           display: "flex",
@@ -43,6 +48,8 @@ const ChatItem: React.FC<ChatItemProps> = ({
           position: "relative",
         }}
       >
+        <AvatarCard avatar={avatar} />
+
         <Stack>
           <Typography>{name}</Typography>
           {newMessagesAlert && (

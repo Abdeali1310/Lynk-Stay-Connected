@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Stack } from "@mui/material";
 import React from "react";
+import ChatItem from "../shared/ChatItem";
 
 interface ChatListProps {
   w?: string;
   chats: Array<{ id: string; name: string; message: string }>;
   chatId: string;
   onlineUsers: Array<string>;
-  newMessageAlert: Array<{ chatId: string; count: number }>;
-  handleDeleteChat: (chatId: string) => void;
+  newMessagesAlert: Array<{ chatId: string; count: number }>;
+  handleDeleteChatOpen: (chatId: string) => void;
 }
 
 const ChatList: React.FC<ChatListProps> = ({
@@ -16,13 +17,33 @@ const ChatList: React.FC<ChatListProps> = ({
   chats = [],
   chatId,
   onlineUsers = [],
-  newMessageAlert = [{ chatId: "", count: 0 }],
-  handleDeleteChat,
+  newMessagesAlert = [{ chatId: "", count: 0 }],
+  handleDeleteChatOpen,
 }) => {
   return (
     <Stack width={w} direction={"column"}>
-      {chats.map((data,index) => {
-        return <div key={index}>{data}</div>;
+      {chats.map((data, index) => {
+        const { avatar, _id, members, groupChat, name } = data;
+
+        const newMessageAlert = newMessagesAlert.find(
+          ({ chatId }) => chatId === _id
+        );
+
+        const isOnline = members.some((member) => onlineUsers.includes(_id));
+        return (
+          <ChatItem
+          index={index}
+            newMessagesAlert={newMessageAlert}
+            isOnline={isOnline}
+            avatar={avatar}
+            name={name}
+            _id={_id}
+            key={_id}
+            groupChat={groupChat}
+            sameSender={chatId == _id}
+            handleDeleteChatOpen={handleDeleteChatOpen}
+          />
+        );
       })}
     </Stack>
   );
