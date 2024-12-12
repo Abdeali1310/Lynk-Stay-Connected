@@ -28,8 +28,10 @@ const NewGroup = () => {
 
   const submitHandler = () => {};
 
+  const closedHandler = () => {};
+
   return (
-    <Dialog open>
+    <Dialog open onClose={closedHandler}>
       <Stack p={{ xs: "1rem", sm: "3rem" }} width={"25rem"} spacing={"2rem"}>
         <DialogTitle textAlign={"center"} variant="h4">
           New Group
@@ -49,6 +51,7 @@ const NewGroup = () => {
               user={user}
               key={user._id}
               handler={selectMemberHandler}
+              isAdded={selectedMembers.includes(user._id)}
             />
           ))}
         </Stack>
