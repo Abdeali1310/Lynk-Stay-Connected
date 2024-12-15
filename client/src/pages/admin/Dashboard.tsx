@@ -15,7 +15,7 @@ import {
   SearchField,
 } from "../../components/Styles/StyledComponents";
 import moment from "moment";
-import {DoughnutChart, LineChart} from "../../components/specific/Charts"
+import { DoughnutChart, LineChart } from "../../components/specific/Charts";
 
 const Dashboard = () => {
   const Appbar = (
@@ -48,7 +48,6 @@ const Dashboard = () => {
       margin={"2rem 0"}
       spacing={"2rem"}
     >
-        
       <Widget title={"Users"} value={50} Icon={<Person />} />
       <Widget title={"Chats"} value={10} Icon={<Group />} />
       <Widget title={"Messages"} value={250} Icon={<Message />} />
@@ -60,7 +59,13 @@ const Dashboard = () => {
       <Container component={"main"}>
         {Appbar}
 
-        <Stack direction={{xs:"column",lg:"row"}} alignItems={{sm:"center",lg:"stretch"}} justifyContent={"center"} sx={{gap:"2rem"}} flexWrap={"wrap"}>
+        <Stack
+          direction={{ xs: "column", lg: "row" }}
+          alignItems={{ sm: "center", lg: "stretch" }}
+          justifyContent={"center"}
+          sx={{ gap: "2rem" }}
+          flexWrap={"wrap"}
+        >
           <Paper
             elevation={3}
             sx={{
@@ -73,7 +78,7 @@ const Dashboard = () => {
             <Typography margin={"2rem 0"} variant="h4">
               Last Messages
             </Typography>
-            <LineChart value={[22,56,33,67,34,3]}/>
+            <LineChart value={[22, 56, 33, 67, 34, 3]} />
           </Paper>
 
           <Paper
@@ -88,10 +93,13 @@ const Dashboard = () => {
               position: "relative",
               width: "100%",
               maxWidth: "25rem",
-              height:"25rem"
+              height: "25rem",
             }}
           >
-            <DoughnutChart labels={["Single Chats","Group Chats"]} value={[25,75]} />
+            <DoughnutChart
+              labels={["Single Chats", "Group Chats"]}
+              value={[25, 75]}
+            />
 
             <Stack
               position={"absolute"}
@@ -102,7 +110,8 @@ const Dashboard = () => {
               width={"100%"}
               height={"100%"}
             >
-                <Group /><Typography>Vs</Typography> <Person />
+              <Group />
+              <Typography>Vs</Typography> <Person />
             </Stack>
           </Paper>
         </Stack>
@@ -122,11 +131,10 @@ const Widget = ({ title, value, Icon }) => {
         margin: "2rem 0",
         borderRadius: "1rem",
         width: "20rem",
-        display:"flex",
-        alignItems:"center",
-        justifyContent:"center",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
-      
     >
       <Stack alignContent={"center"} justifyContent={"center"} spacing={"1rem"}>
         <Typography
