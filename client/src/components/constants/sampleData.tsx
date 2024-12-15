@@ -155,4 +155,36 @@ export const dashboardData = {
       }
     },
   ],
+
+  messages:[
+    {
+      attachment:[],
+      content:"Hey! This is sample message",
+      _id:"7dbb4h994nmdn",
+      sender:{
+        avatar: "https://www.w3schools.com/howto/img_avatar.png",
+        name:"Abc",
+      },
+      chat:"chatId",
+      groupChat:true,
+      createdAt: "2024-12-12T13:40:32.920Z",
+    },
+    {
+      attachments:[
+        {
+          public_id:"9dhh743h023jgnm",
+          url:"https://www.w3schools.com/howto/img_avatar.png",
+        }
+      ],
+      content:"Hey! This is 2nd sample message",
+      _id:"7dbb4s994nmdn",
+      sender:{
+        avatar: "https://www.w3schools.com/howto/img_avatar.png",
+        name:"Xyz",
+      },
+      chat:"chatId",
+      groupChat:true,
+      createdAt: "2024-12-12T13:40:32.920Z",
+    }
+  ]
 };
