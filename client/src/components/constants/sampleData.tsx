@@ -75,24 +75,84 @@ export const sampleMessage = [
   },
 ];
 
-
 export const dashboardData = {
-  users:[
+  users: [
     {
-      name:"John Doe",
+      name: "John Doe",
       avatar: ["https://www.w3schools.com/howto/img_avatar.png"],
-      _id:1,
-      username:"john_doe",
-      friends:20,
-      groups:5,
+      _id: 1,
+      username: "john_doe",
+      friends: 20,
+      groups: 5,
     },
     {
-      name:"Jane Doe",
+      name: "Jane Doe",
       avatar: ["https://www.w3schools.com/howto/img_avatar.png"],
-      _id:2,
-      username:"jane_doe",
-      friends:15,
-      groups:20,
+      _id: 2,
+      username: "jane_doe",
+      friends: 15,
+      groups: 20,
     },
-  ]
-}
+  ],
+
+  chats: [
+    {
+      name: "The Fashion Hub",
+      avatar: ["https://www.w3schools.com/howto/img_avatar.png"],
+      _id: 1,
+      groupChat: false,
+      members: [
+        {
+          _id: 1,
+          avatar: "https://www.w3schools.com/howto/img_avatar.png",
+        },
+        {
+          _id: 2,
+          avatar: "https://www.w3schools.com/howto/img_avatar.png",
+        },
+      ],
+
+      totalMembers:2,
+      totalMessages:20,
+      creator:{
+        name:"John Doe",
+        avatar: ["https://www.w3schools.com/howto/img_avatar.png"],
+      }
+    },
+    {
+      name: "The Music Hub",
+      avatar: ["https://www.w3schools.com/howto/img_avatar.png"],
+      _id: 2,
+      groupChat: false,
+      members: [
+        {
+          _id: 1,
+          avatar: "https://www.w3schools.com/howto/img_avatar.png",
+        },
+        {
+          _id: 2,
+          avatar: "https://www.w3schools.com/howto/img_avatar.png",
+        },
+        {
+          _id: 3,
+          avatar: "https://www.w3schools.com/howto/img_avatar.png",
+        },
+        {
+          _id: 4,
+          avatar: "https://www.w3schools.com/howto/img_avatar.png",
+        },
+        {
+          _id: 5,
+          avatar: "https://www.w3schools.com/howto/img_avatar.png",
+        },
+      ],
+
+      totalMembers:5,
+      totalMessages:12,
+      creator:{
+        name:"Jane Doe",
+        avatar: ["https://www.w3schools.com/howto/img_avatar.png"],
+      }
+    },
+  ],
+};
