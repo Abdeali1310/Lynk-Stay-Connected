@@ -99,21 +99,20 @@ const userLogin = async (req: Request, res: Response) => {
 const getMyProfile = async (req: Request, res: Response) => {
   try {
     const user = await User.findById(req.user);
-    
+
     if (user) {
       return res.status(200).json({
         user,
       });
     }
-    return res.status(500).json({msg:"User not found"})
+    return res.status(500).json({ msg: "User not found" });
   } catch (error) {
     console.log("Error while fetching user", error);
     res.status(500).json({ msg: "Error while fetching current user" });
   }
 };
 
-
-const userLogout = (req:Request,res:Response)=>{
+const userLogout = (req: Request, res: Response) => {
   res.clearCookie("auth_token", {
     httpOnly: true,
     domain: "localhost",
@@ -122,8 +121,25 @@ const userLogout = (req:Request,res:Response)=>{
   });
 
   res.status(200).json({
-    success:true,
-    msg:"Logged out successfully"
-  })
-}
-module.exports = { userSignUp, userLogin, getMyProfile, userLogout };
+    success: true,
+    msg: "Logged out successfully",
+  });
+};
+
+const searchUser = (req: Request, res: Response) => {
+  const { name } = req.query;
+
+  return res.status(200).json({
+    success: true,
+    message: name,
+  });
+};
+
+
+module.exports = {
+  userSignUp,
+  userLogin,
+  getMyProfile,
+  userLogout,
+  searchUser,
+};
