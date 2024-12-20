@@ -211,4 +211,60 @@ const removeMember = async (req: Request, res: Response) => {
     .status(200)
     .json({ success: true, message: "Member removed successfully" });
 };
-module.exports = { newGroupChat, getMyChats, getMyGroups, addMembers,removeMember };
+
+const leaveGroup = async (req: Request, res: Response) => {
+  try {
+    const chatId = req.params.id;
+    
+  const chat =await  Chat.findById(chatId);
+  
+  if (!chat) {
+    return res.status(404).json({ success: false, message: "Chat not found" });
+  }
+  
+  if (!chat.groupChat) {
+    return res
+      .status(400)
+      .json({ success: false, message: "This is not a group chat" });
+  }
+
+  const remainingMembers = await chat.members.filter(
+    (member) => member.toString() !== req.user?.toString()
+  );
+
+  if(remainingMembers.length <= 3){
+    return res
+    .status(400)
+    .json({ success: false, message: "Group must have atleast 3 members" });
+  }
+  if (chat.creator.toString() === req.user?.toString()) {
+    const randomElement = Math.floor(Math.random() * remainingMembers.length);
+    const newCreator = remainingMembers[randomElement];
+    chat.creator = newCreator;
+  }
+
+  chat.members = remainingMembers;
+
+  const [user] = await Promise.all([
+    User.findById(req.user, "name"),
+    chat.save(),
+  ]);
+
+  return res
+    .status(200)
+    .json({ success: true, message: "User removed successfully" });
+  } catch (error) {
+    console.log("Error while removing user from group",error);
+    return res.status(500).json({success:false,message:"Server error while removing user from group"})
+    
+  }
+};
+
+module.exports = {
+  newGroupChat,
+  getMyChats,
+  getMyGroups,
+  addMembers,
+  removeMember,
+  leaveGroup,
+};
