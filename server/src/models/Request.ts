@@ -25,6 +25,6 @@ const requestSchema = mongoose.Schema(
   }
 );
 
-const Request = mongoose.model("Request", requestSchema);
+const Req = mongoose.model("Request", requestSchema);
 
-export default Request;
+export default Req;

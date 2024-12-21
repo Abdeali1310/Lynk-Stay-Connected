@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import User from "../models/User";
 import { loginSchema, signupSchema } from "../utils/validation";
 import Chat from "../models/Chat";
+import Req from "../models/Request";
+const { emitEvent } = require("../utils/features");
+const { NEW_REQUEST, REFETCH_CHATS } = require("../constants/events");
 const jwt = require("jsonwebtoken");
 const { z } = require("zod");
 const bcrypt = require("bcrypt");
@@ -140,33 +143,171 @@ const userLogout = (req: Request, res: Response) => {
 };
 
 const searchUser = async (req: Request, res: Response) => {
-  const { name } = req.query;
+  try {
+    const { name } = req.query;
 
-  const myChats = await Chat.find({ groupChat: false, members: req.user });
+    const myChats = await Chat.find({ groupChat: false, members: req.user });
 
-  const allUsersFromMyChats = myChats.flatMap((chat) => chat.members);
+    const allUsersFromMyChats = myChats.flatMap((chat) => chat.members);
 
-  const allUsersExceptMeAndFriend = await User.find({
-    _id: { $nin: allUsersFromMyChats },
-    name: { $regex: name, $options: "i" },
-  });
+    const allUsersExceptMeAndFriend = await User.find({
+      _id: { $nin: allUsersFromMyChats },
+      name: { $regex: name, $options: "i" },
+    });
 
-  const users = allUsersExceptMeAndFriend.map(({ _id, name, avatar }) => ({
-    _id,
-    name,
-    avatar: avatar.url,
-  }));
+    const users = allUsersExceptMeAndFriend.map(({ _id, name, avatar }) => ({
+      _id,
+      name,
+      avatar: avatar.url,
+    }));
 
-  return res.status(200).json({
-    success: true,
-    users,
-  });
+    return res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    console.log("Error while searching user", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error while searching user",
+    });
+  }
 };
 
+const sendFriendRequest = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.body;
+
+    const request = await Req.findOne({
+      $or: [
+        {
+          sender: req.user,
+          receiver: userId,
+        },
+        {
+          sender: userId,
+          receiver: req.user,
+        },
+      ],
+    });
+
+    if (request) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Request already sent" });
+    }
+    await Req.create({
+      sender: req.user,
+      receiver: userId,
+    });
+
+    emitEvent(req, NEW_REQUEST, [userId]);
+
+    return res.status(200).json({
+      success: true,
+      message: "Friend request sent",
+    });
+  } catch (error) {
+    console.log("Error while sending friend request", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error while sending friend request",
+    });
+  }
+};
+
+const acceptFriendRequest = async (req: Request, res: Response) => {
+  try {
+    const { requestId, accept } = req.body;
+
+    const request = await Req.findById(requestId)
+      .populate("sender", "name")
+      .populate("receiver", "name");
+
+    if (!request) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Request not found" });
+    }
+
+    if (request.receiver.toString() !== req.user?.toString()) {
+      return res.status(401).json({
+        success: false,
+        message: "You are not authorized to accept this request",
+      });
+    }
+
+    if (!accept) {
+      await request.deleteOne();
+
+      return res.status(200).json({
+        success: true,
+        message: "Friend request rejected",
+      });
+    }
+    const members = [request.sender._id, request.receiver._id];
+    await Promise.all([
+      Chat.create({
+        members,
+        name: `${request.sender.name}-${request.receiver.name}`,
+      }),
+      request.deleteOne(),
+    ]);
+
+    emitEvent(req, REFETCH_CHATS, members);
+
+    return res.status(200).json({
+      success: true,
+      message: "Friend request accepted",
+      senderId: request.sender._id,
+    });
+  } catch (error) {
+    console.log("Error while accepting friend request", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error while accepting friend request",
+    });
+  }
+};
+
+const getAllNotifications = async (req: Request, res: Response) => {
+  try {
+    const requests = await Req.find({
+      receiver: req.user,
+    }).populate("sender", "name avatar");
+
+    const allRequests = requests.map(({ _id, sender }) => ({
+      _id,
+      sender: {
+        _id: sender._id,
+        name: sender.name,
+        avatar: sender.avatar.url,
+      },
+    }));
+
+    return res.status(200).json({
+      success: true,
+      allRequests,
+    });
+  } catch (error) {
+    console.log("Error while retrieving notifications", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error while retrieving notifications",
+    });
+  }
+};
 module.exports = {
   userSignUp,
   userLogin,
   getMyProfile,
   userLogout,
   searchUser,
+  sendFriendRequest,
+  acceptFriendRequest,
+  getAllNotifications,
 };
