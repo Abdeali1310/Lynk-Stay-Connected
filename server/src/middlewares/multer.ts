@@ -1,4 +1,4 @@
-const multer = require("multer");
+import multer from "multer";
 
 const multerUpload = multer({
   limits: {
@@ -7,5 +7,6 @@ const multerUpload = multer({
 });
 
 const singleAvatar = multerUpload.single("avatar");
+const attachmentsMulter = multerUpload.array("files", 5);
 
-module.exports = singleAvatar
+export {singleAvatar,attachmentsMulter}

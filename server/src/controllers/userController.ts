@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
 import User from "../models/User";
-import { signupSchema } from "../utils/validation";
+import { loginSchema, signupSchema } from "../utils/validation";
+import Chat from "../models/Chat";
 const jwt = require("jsonwebtoken");
 const { z } = require("zod");
 const bcrypt = require("bcrypt");
 
 const userSignUp = async (req: Request, res: Response) => {
   try {
-    const { name, username, password, bio, avatar } = req.body;
+    const validatedData = signupSchema.parse(req.body);
+    const { name, username, password, bio, avatar } = validatedData;
     const user = await User.create({
       name,
       username,
@@ -42,17 +44,23 @@ const userSignUp = async (req: Request, res: Response) => {
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ errors: error.errors[0].message });
+      return res
+        .status(400)
+        .json({ errors: error.errors.map((e) => e.message) });
     }
 
-    console.log("Error while creating user", error);
-    return res.status(411).json({ msg: error });
+    console.error("Error while creating user", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while creating user",
+    });
   }
 };
 
 const userLogin = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
+    const validatedData = loginSchema.parse(req.body);
+    const { username, password } = validatedData;
 
     const user = await User.findOne({ username }).select("+password");
     if (!user) {
@@ -88,11 +96,16 @@ const userLogin = async (req: Request, res: Response) => {
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ errors: error.errors[0].message });
+      return res
+        .status(400)
+        .json({ errors: error.errors.map((e) => e.message) });
     }
 
-    console.log("Error while creating user", error);
-    return res.status(500).json({ msg: "Internal server error" });
+    console.error("Error while login user", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while creating user",
+    });
   }
 };
 
@@ -126,15 +139,29 @@ const userLogout = (req: Request, res: Response) => {
   });
 };
 
-const searchUser = (req: Request, res: Response) => {
+const searchUser = async (req: Request, res: Response) => {
   const { name } = req.query;
+
+  const myChats = await Chat.find({ groupChat: false, members: req.user });
+
+  const allUsersFromMyChats = myChats.flatMap((chat) => chat.members);
+
+  const allUsersExceptMeAndFriend = await User.find({
+    _id: { $nin: allUsersFromMyChats },
+    name: { $regex: name, $options: "i" },
+  });
+
+  const users = allUsersExceptMeAndFriend.map(({ _id, name, avatar }) => ({
+    _id,
+    name,
+    avatar: avatar.url,
+  }));
 
   return res.status(200).json({
     success: true,
-    message: name,
+    users,
   });
 };
-
 
 module.exports = {
   userSignUp,

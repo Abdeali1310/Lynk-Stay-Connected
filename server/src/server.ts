@@ -3,7 +3,12 @@ const app = express();
 const { connectDB } = require("./utils/db");
 const userRouter = require("./routes/userRoutes");
 const chatRouter = require("./routes/chatRoutes");
-const { createUser } = require("./seeders/user");
+const {
+  createUser,
+  createSingleChats,
+  createGroupChats,
+  createMessagesInAChat,
+} = require("./seeders/user");
 
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
@@ -22,4 +27,8 @@ app.listen(PORT, () => {
   console.log(`Server is up and running on port ${PORT}`);
   connectDB(DB_URL);
   // createUser(10);
+  // createSingleChats(10)
+  // createGroupChats(10);
+
+  // createMessagesInAChat("6766f0dd008d409af7bde4dc", 50);
 });
