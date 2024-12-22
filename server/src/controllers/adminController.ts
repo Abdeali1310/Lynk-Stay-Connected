@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import User from "../models/User";
 import Chat from "../models/Chat";
 import Message from "../models/Message";
+import { adminLoginSchema } from "../utils/validation";
+const jwt = require("jsonwebtoken");
+const { z } = require("zod");
 
 const allUsers = async (req: Request, res: Response) => {
   try {
@@ -165,4 +168,82 @@ const getDashboardStats = async (req: Request, res: Response) => {
     });
   }
 };
-module.exports = { allUsers, allChats, allMessages, getDashboardStats };
+
+const adminLogin = async (req: Request, res: Response) => {
+  try {
+    const validatedData = adminLoginSchema.parse(req.body);
+    const { secretKey } = validatedData;
+
+    const adminSecretKey = process.env.ADMIN_SECRET_KEY || "admin_key";
+
+    const isMatched = secretKey === adminSecretKey;
+
+    if (!isMatched) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid admin key" });
+    }
+
+    const token = jwt.sign({ secretKey }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    //creating new cookie
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 7);
+
+    res.cookie("admin_auth_token", token, {
+      path: "/",
+      domain: "localhost",
+      expires,
+      httpOnly: true,
+      signed: true,
+      secure: true,
+    });
+
+    return res.status(201).json({
+      msg: `Welcome Admin`,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res
+        .status(400)
+        .json({ errors: error.errors.map((e) => e.message) });
+    }
+
+    console.error("Error while login admin", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while login admin",
+    });
+  }
+};
+
+const adminLogout = async (req: Request, res: Response) => {
+  res.clearCookie("admin_auth_token", {
+    httpOnly: true,
+    domain: "localhost",
+    signed: true,
+    path: "/",
+  });
+
+  res.status(200).json({
+    success: true,
+    msg: "Logged out successfully",
+  });
+};
+
+const getAdminData = async (req: Request, res: Response) => {
+  return res.status(200).json({
+    admin: true,
+  });
+};
+module.exports = {
+  allUsers,
+  allChats,
+  allMessages,
+  getDashboardStats,
+  adminLogin,
+  adminLogout,
+  getAdminData,
+};

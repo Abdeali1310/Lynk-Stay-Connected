@@ -28,11 +28,15 @@ export const loginSchema = z.object({
     .max(100, "Password must not exceed 100 characters"),
 });
 
+export const adminLoginSchema = z.object({
+  secretKey: z.string(),
+});
+
 export const newGroupValidator = z.object({
-    name: z.string().nonempty("Name is required"),
-    members: z
-      .array(z.string())
-      .min(2, "Members must be at least 2")
-      .max(100, "Members must not exceed 100")
-      .nonempty("Members are required"),
-  });
+  name: z.string().nonempty("Name is required"),
+  members: z
+    .array(z.string())
+    .min(2, "Members must be at least 2")
+    .max(100, "Members must not exceed 100")
+    .nonempty("Members are required"),
+});
