@@ -8,6 +8,7 @@ const { NEW_REQUEST, REFETCH_CHATS } = require("../constants/events");
 const jwt = require("jsonwebtoken");
 const { z } = require("zod");
 const bcrypt = require("bcrypt");
+const {getOtherMember} = require("../lib/helper")
 
 const userSignUp = async (req: Request, res: Response) => {
   try {
@@ -232,7 +233,7 @@ const acceptFriendRequest = async (req: Request, res: Response) => {
         .json({ success: false, message: "Request not found" });
     }
 
-    if (request.receiver.toString() !== req.user?.toString()) {
+    if (request.receiver._id.toString() !== req.user?.toString()) {
       return res.status(401).json({
         success: false,
         message: "You are not authorized to accept this request",
@@ -301,6 +302,51 @@ const getAllNotifications = async (req: Request, res: Response) => {
     });
   }
 };
+
+const getMyFriends = async (req:Request,res:Response)=>{
+  try {
+    const chatId = req.query.chatId;
+
+    const chats = await Chat.find({
+      members:req.user,
+      groupChat:false,
+    }).populate("members","name avatar");
+
+    const friends = chats.map(({members})=>{
+      const otherUser = getOtherMember(members,req.user)
+
+      return {
+        _id:otherUser._id,
+        name:otherUser.name,
+        avatar:otherUser.avatar.url
+      }
+    })
+
+    if(chatId){
+      const chat = await Chat.findById(chatId);
+      const availableFriends = friends.filter(
+        (friend)=>!chat.members.includes(friend._id)
+      );
+
+      return res.status(200).json({
+        success:true,
+        friends:availableFriends,
+      })
+    }else{
+      return res.status(200).json({
+        success:true,
+        friends,
+      })
+    }
+  } catch (error) {
+    console.log("Error while retrieving friends", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error while retrieving friends",
+    });
+  }
+}
 module.exports = {
   userSignUp,
   userLogin,
@@ -310,4 +356,5 @@ module.exports = {
   sendFriendRequest,
   acceptFriendRequest,
   getAllNotifications,
+  getMyFriends,
 };

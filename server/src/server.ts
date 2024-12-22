@@ -3,6 +3,7 @@ const app = express();
 const { connectDB } = require("./utils/db");
 const userRouter = require("./routes/userRoutes");
 const chatRouter = require("./routes/chatRoutes");
+const adminRouter = require("./routes/adminRoutes");
 const {
   createUser,
   createSingleChats,
@@ -22,6 +23,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.use("/user", userRouter);
 app.use("/chat", chatRouter);
+app.use("/admin",adminRouter)
 
 app.listen(PORT, () => {
   console.log(`Server is up and running on port ${PORT}`);

@@ -8,6 +8,7 @@ const {
   sendFriendRequest,
   acceptFriendRequest,
   getAllNotifications,
+  getMyFriends,
 } = require("../controllers/userController");
 import { singleAvatar } from "../middlewares/multer";
 const userRouter = express.Router();
@@ -23,4 +24,5 @@ userRouter.get("/search", isAuthenticated, searchUser);
 userRouter.put("/sendrequest", isAuthenticated, sendFriendRequest);
 userRouter.put("/acceptrequest", isAuthenticated, acceptFriendRequest);
 userRouter.get("/notifications", isAuthenticated, getAllNotifications);
+userRouter.get("/friends", isAuthenticated, getMyFriends);
 module.exports = userRouter;
