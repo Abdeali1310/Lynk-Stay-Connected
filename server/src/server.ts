@@ -4,6 +4,8 @@ const { connectDB } = require("./utils/db");
 const userRouter = require("./routes/userRoutes");
 const chatRouter = require("./routes/chatRoutes");
 const adminRouter = require("./routes/adminRoutes");
+const {createServer} = require("http");
+const {Server} = require("socket.io")
 const {
   createUser,
   createSingleChats,
@@ -17,6 +19,9 @@ require("dotenv").config();
 const PORT = process.env.PORT;
 const DB_URL = process.env.MONGODB_URL;
 
+const server = createServer(app);
+const io = new Server(server,{});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -25,12 +30,17 @@ app.use("/user", userRouter);
 app.use("/chat", chatRouter);
 app.use("/admin",adminRouter)
 
-app.listen(PORT, () => {
+
+io.on("connection",(socket)=>{
+  console.log("user connected - ",socket.id);
+  socket.on("disconnect",()=>{
+    console.log("user disconnected");
+    
+  })
+  
+})
+server.listen(PORT, () => {
   console.log(`Server is up and running on port ${PORT}`);
   connectDB(DB_URL);
-  // createUser(10);
-  // createSingleChats(10)
-  // createGroupChats(10);
-
-  // createMessagesInAChat("6766f0dd008d409af7bde4dc", 50);
+  
 });
